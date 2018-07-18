@@ -442,7 +442,7 @@ void repack(const char* orig_image, const char* out_image) {
 		dhtb_hdr *hdr = boot.map_addr;
 		memcpy(hdr, DHTB_MAGIC, 8);
 		hdr->size = boot.map_size - 512;
-		SHA256_hash(boot.map_addr + 512, hdr->size, hdr->checksum);
+		SHA256_hash(boot.map_addr + 512, hdr->size, (uint8_t*) hdr->checksum);
 	} else if (boot.flags & BLOB_FLAG) {
 		// Blob headers
 		boot.b_hdr->size = boot.map_size - sizeof(blob_hdr);

@@ -188,5 +188,7 @@ LOCAL_SRC_FILES := \
 LOCAL_CFLAGS += -DHAVE_CONFIG_H -Wno-implicit-function-declaration
 include $(BUILD_STATIC_LIBRARY)
 
+include $(SE_PATH)/Android.mk
+
 # libsepol.a
 include $(SE_PATH)/libsepol/Android.mk

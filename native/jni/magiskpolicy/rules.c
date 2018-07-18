@@ -155,6 +155,16 @@ void sepol_magisk_rules() {
 	sepol_allow(SEPOL_FILE_DOMAIN, "labeledfs", "filesystem", "associate");
 	sepol_allow(SEPOL_FILE_DOMAIN, "tmpfs", "filesystem", "associate");
 
+	// For AnyKernel2 systemless support
+	sepol_allow("init", "rootfs", "file", "execute_no_trans");
+	sepol_allow("init", "rootfs", "system", "module_load");
+	sepol_allow("modprobe", "rootfs", "system", "module_load");
+	sepol_allow("init", "system_file", "file", "mounton");
+	sepol_allow("init", "vendor_file", "file", "mounton");
+	sepol_allow("init", "vendor_configs_file", "file", "mounton");
+	sepol_allow("msm_irqbalanced", "rootfs", "file", ALL);
+	sepol_allow("hal_perf_default", "rootfs", "file", ALL);
+
 	// Xposed
 	sepol_allow("untrusted_app", "untrusted_app", "capability", "setgid");
 	sepol_allow("system_server", "dex2oat_exec", "file", ALL);
