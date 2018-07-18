@@ -1,0 +1,72 @@
+language: android
+
+dist: trusty
+jdk: oraclejdk8
+sudo: required
+
+# safelist
+branches:
+  only:
+  - travisci-dev
+
+android:
+  components:
+    - tools
+  licenses:
+    - 'android-sdk-license-.+'
+    - 'android-sdk-preview-license-.+'
+
+cache:
+  directories:
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
+  - "$HOME/.android/build-cache"
+  - "$HOME/android-ndk-r15c"
+
+before_install:
+  - if [ ! -f $HOME/android-ndk-r15c/ndk-build ]; then 
+      wget https://dl.google.com/android/repository/android-ndk-r15c-linux-x86_64.zip;
+      unzip android-ndk-r15c-linux-x86_64.zip -d $HOME > /dev/null;
+    fi
+  - export ANDROID_NDK_HOME=$HOME/android-ndk-r15c
+  - export ANDROID_NDK=$ANDROID_NDK_HOME
+  - export PATH=$PATH:$ANDROID_NDK_HOME
+  - mkdir "$ANDROID_HOME/licenses" || true    
+  - echo -e "\nd56f5187479451eabf01fb78af6dfcb131a6481e" > "$ANDROID_HOME/licenses/android-sdk-license"   
+  - echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_HOME/licenses/android-sdk-preview-license" 
+
+before_script:
+  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+  - sudo add-apt-repository ppa:jonathonf/python-3.6 -y
+  - sudo apt-get update
+  - sudo apt-get install -y --allow-unauthenticated libstdc++6-4.7-dev python3.6
+
+env:
+  global:
+    - ANDROID_HOME=/usr/local/android-sdk
+    - GH_EMAIL="amit.bagaria@gmail.com"
+    - GH_FULLNAME="Amit Bagaria"
+    - GH_USERNAME=cooldroid
+    - MAGISK_DATE=$(date -u +%Y%m%d)
+    - MAGISK_TIME=$(date -u +%H%M%S)
+
+script:
+  - time python3.6 ${TRAVIS_BUILD_DIR}/build.py --release all ${MAGISK_VER_STRING} ${MAGISK_VER_INTEGER} && echo "Magisk has been successfully built"
+
+after_success:
+  - mv -f out/Magisk-v${MAGISK_VER_STRING}.zip out/Magisk-v${MAGISK_VER_STRING}-${MAGISK_DATE}.zip
+  - mv -f out/app-release.apk out/MagiskManager-v${APK_VER_NAME}.apk
+  - '[ -f out/Magisk-v${MAGISK_VER_STRING}-${MAGISK_DATE}.zip ] && export TRAVIS_TAG=v${MAGISK_VER_STRING}-${MAGISK_DATE}'
+
+deploy:
+  provider: releases
+  api_key:
+    secure: evSkI8oAy0cCM9cvjoDdMIJBtDWnoBv9ljmrN+NTw3Dz8JH5tPUyTgKtorHR3H8CC1Qv+2sQjfTHpIS68MAt99Yy8dIze1mfzdEfK56j1H8Z++WEqkvdhwXMmiYt7GGWRM3RWP5dlpnZuRnnwFwnTWeHxCvoJswBpinwQvQhB6SeQH3cZLvygqaQ3iL+FUaT+F0K+aD2GlAxXPyu8DYq5FwEkFSahtkeDsb4s0nCAKVDiCDObW2dixE+8hdiWO7/NueHJW3caiWBrQR5TUCbY3iDfQxUYNUrE7ZRBVwfnEBXBg6bJwdhjbzzgNOLp/VZjjPFdBPn3UOA1ew8uUL6ILc6o0wjnfKoLj9HWQ2LZjp+hX5AEK13/BOsxL/A8PjR0lMQESTlfZaOB4xQNzH1+1wHOVCaWkiTHXdxfZqFMqPq9sTcXtkcSfgOzoQQrqrWJ3OWGRgGjQhNT2rZ+s4ACgVs/m/B8QPpIepndNMw++u9T0f7Xm2vqNHu/j8bUiGKVJA8A7e7hkaB/beuKt7eINEWk7X/HPToP2IMzT70X9utZN4X0Ag/j+9bYFBJSCsVo7/PAjgQ+tFelCOmiyAGXVbjkzGXzkYQyOziMZtQbVW+eYfSHZNdfQ/7/67aMApc0Xz5EKROJT2zClDaxrTwpi5aERToYy+r8Hz5VwuyP7U=
+  file: 
+    - "out/Magisk-v${MAGISK_VER_STRING}-${MAGISK_DATE}.zip"
+    - "out/Magisk-uninstaller-${MAGISK_DATE}.zip"
+    - "out/MagiskManager-v${APK_VER_NAME}.apk"
+  skip_cleanup: true
+  on:
+    branch: travisci-dev
+    tags: true
