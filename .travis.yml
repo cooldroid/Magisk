@@ -17,21 +17,22 @@ android:
     - 'android-sdk-preview-license-.+'
 
 cache:
+  timeout: 600
   directories:
-  - "$HOME/.gradle/caches/"
   - "$HOME/.gradle/wrapper/"
-  - "$HOME/.android/build-cache"
-  - "$HOME/android-ndk-r15c"
+  - "$HOME/FrankeNDK-master/"
+#before_cache:
+#  - rm -f $HOME/.cache/pip/log/debug.log
 
 before_install:
-  - if [ ! -f $HOME/android-ndk-r15c/ndk-build ]; then 
-      wget https://dl.google.com/android/repository/android-ndk-r15c-linux-x86_64.zip;
-      unzip android-ndk-r15c-linux-x86_64.zip -d $HOME > /dev/null;
+  - if [ ! -f $HOME/FrankeNDK-master/ndk-build ]; then
+      wget -O FrankeNDK-master.zip https://github.com/topjohnwu/FrankeNDK/archive/master.zip;
+      unzip FrankeNDK-master.zip -d $HOME > /dev/null;
     fi
-  - export ANDROID_NDK_HOME=$HOME/android-ndk-r15c
+  - export ANDROID_NDK_HOME=$HOME/FrankeNDK-master
   - export ANDROID_NDK=$ANDROID_NDK_HOME
   - export PATH=$PATH:$ANDROID_NDK_HOME
-  - mkdir "$ANDROID_HOME/licenses" || true    
+  - mkdir "$ANDROID_HOME/licenses" || true
   - echo -e "\nd56f5187479451eabf01fb78af6dfcb131a6481e" > "$ANDROID_HOME/licenses/android-sdk-license"   
   - echo -e "\n84831b9409646a918e30573bab4c9c91346d8abd" > "$ANDROID_HOME/licenses/android-sdk-preview-license" 
 
@@ -39,34 +40,50 @@ before_script:
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo add-apt-repository ppa:jonathonf/python-3.6 -y
   - sudo apt-get update
-  - sudo apt-get install -y --allow-unauthenticated libstdc++6-4.7-dev python3.6
+  - sudo apt-get install -y --allow-unauthenticated libstdc++6-4.7-dev jq python3.6 libpython2.7-dev
+  - wget http://http.us.debian.org/debian/pool/main/p/python2.7/libpython2.7-dev_2.7.9-2+deb8u1_arm64.deb
+  - dpkg -x libpython2.7-dev_2.7.9-2+deb8u1_arm64.deb libpython2.7-dev_2.7.9-2+deb8u1_arm64_extracted
+  - sudo cp -r libpython2.7-dev_2.7.9-2+deb8u1_arm64_extracted/usr/include/aarch64-linux-gnu /usr/include/
+  - rm -rf libpython2.7-dev_2.7.9-2*
+  - sudo sed -i.bak 's/<x86_64-linux-gnu\/python2.7\/pyconfig.h>/"\/usr\/include\/x86_64-linux-gnu\/python2.7\/pyconfig.h"/g' /usr/include/python2.7/pyconfig.h
+  - sudo sed -i.bak 's/<aarch64-linux-gnu\/python2.7\/pyconfig.h>/"\/usr\/include\/aarch64-linux-gnu\/python2.7\/pyconfig.h"/g' /usr/include/python2.7/pyconfig.h
 
 env:
   global:
     - ANDROID_HOME=/usr/local/android-sdk
-    - GH_EMAIL="amit.bagaria@gmail.com"
-    - GH_FULLNAME="Amit Bagaria"
+    - GH_EMAIL="travis@travis-ci.org"
+    - GH_FULLNAME="Travis CI"
     - GH_USERNAME=cooldroid
+    - GIT_COMMIT_HASH=$(git rev-parse --short HEAD)
+    - DUMMY_VAR=$(. .travis/config.sh)
+    - APK_VER_NAME=$(grep -iR "^appVersion=" config.prop | awk -F "=" '{print $2}')
+    - APK_VER_CODE=$(grep -iR "^appVersionCode=" config.prop | awk -F "=" '{print $2}')
+    - MAGISK_VER_STRING=$(grep -iR "^version=" config.prop | awk -F "=" '{print $2}')
+    - MAGISK_VER_CODE=$(grep -iR "^versionCode=" config.prop | awk -F "=" '{print $2}')
     - MAGISK_DATE=$(date -u +%Y%m%d)
-    - MAGISK_TIME=$(date -u +%H%M%S)
+    - MAGISK_ZIP_FILE=Magisk64-v${MAGISK_VER_STRING}-${MAGISK_DATE}.zip
+    - secure: HQmqZPaINrEwf+9XNBW7nqTq9ztnVsPSo+gtUOcf/Dfxg+q8nnn0zMZKD7AMtY+Hix5elsOXT1UdETJ7gIW31uvwSzP1Wci76QQFdQRpJLAZofBfsfXiyWw9SusutYdA+pkGWF0SPo5rRdbUPbzmzuIubgUdMJmcQ+1biwvyopSbMY4PBxdm1KO0x22OOvqliT8v9mqiV+ySbFisB5nXmArT4bxzDriFuvT28kPHSKWhlUADi3A1KPdL6eZB2LGvG5JVTtu+5ZCKN4DgY+KmzC5NK4H6dO9ufGZg9gIhFcskqSNuG8JgXs00pEkr4Cw+UwMzW7m52cHwUjY63cbqFZSIADPscnLGLh9RlfJ9VxMwnkSUwg6dUndFCXYNN9A39oV/7X+LMAC9JK8dYp/CeztxPjqCQQulzLi0ZkOYuxk4lq8zolBmMdeibl9qs//M62b8ZqNaKlK7zKAmruGuD1Khru2p1XoeE89o4BlWOaeIKcXIgXzajAa0DcR+UP7G/P1dlFOGgA9AZkk5YcRnO/5lQBMFORhf0FhJwrq2IM+wzF+bnapO8GdAjiIdRqe1lz2vQAzKtMMcwJOM6CaheBNuYkUvN/P6lxref5GZ4pZuW2xG316T1e2JRV/wVEu66yFFZHK6yewi+MA0MC22YH0OitkOAmPN/lJTQbmx4rg=
 
 script:
-  - time python3.6 ${TRAVIS_BUILD_DIR}/build.py --release all ${MAGISK_VER_STRING} ${MAGISK_VER_INTEGER} && echo "Magisk has been successfully built"
+  - time python3.6 ${TRAVIS_BUILD_DIR}/build.py -r -v all && echo "Magisk has been successfully built"
 
 after_success:
-  - mv -f out/Magisk-v${MAGISK_VER_STRING}.zip out/Magisk-v${MAGISK_VER_STRING}-${MAGISK_DATE}.zip
-  - mv -f out/app-release.apk out/MagiskManager-v${APK_VER_NAME}.apk
-  - '[ -f out/Magisk-v${MAGISK_VER_STRING}-${MAGISK_DATE}.zip ] && export TRAVIS_TAG=v${MAGISK_VER_STRING}-${MAGISK_DATE}'
+  - mv -f out/app-full-release.apk out/MagiskManager-v${APK_VER_NAME}.apk
+  - "[ -f out/${MAGISK_ZIP_FILE} ] && export TRAVIS_TAG=v$(echo ${MAGISK_VER_STRING} | awk -F \"-\" '{print $1}')-${MAGISK_DATE}"
 
 deploy:
   provider: releases
   api_key:
     secure: evSkI8oAy0cCM9cvjoDdMIJBtDWnoBv9ljmrN+NTw3Dz8JH5tPUyTgKtorHR3H8CC1Qv+2sQjfTHpIS68MAt99Yy8dIze1mfzdEfK56j1H8Z++WEqkvdhwXMmiYt7GGWRM3RWP5dlpnZuRnnwFwnTWeHxCvoJswBpinwQvQhB6SeQH3cZLvygqaQ3iL+FUaT+F0K+aD2GlAxXPyu8DYq5FwEkFSahtkeDsb4s0nCAKVDiCDObW2dixE+8hdiWO7/NueHJW3caiWBrQR5TUCbY3iDfQxUYNUrE7ZRBVwfnEBXBg6bJwdhjbzzgNOLp/VZjjPFdBPn3UOA1ew8uUL6ILc6o0wjnfKoLj9HWQ2LZjp+hX5AEK13/BOsxL/A8PjR0lMQESTlfZaOB4xQNzH1+1wHOVCaWkiTHXdxfZqFMqPq9sTcXtkcSfgOzoQQrqrWJ3OWGRgGjQhNT2rZ+s4ACgVs/m/B8QPpIepndNMw++u9T0f7Xm2vqNHu/j8bUiGKVJA8A7e7hkaB/beuKt7eINEWk7X/HPToP2IMzT70X9utZN4X0Ag/j+9bYFBJSCsVo7/PAjgQ+tFelCOmiyAGXVbjkzGXzkYQyOziMZtQbVW+eYfSHZNdfQ/7/67aMApc0Xz5EKROJT2zClDaxrTwpi5aERToYy+r8Hz5VwuyP7U=
   file: 
-    - "out/Magisk-v${MAGISK_VER_STRING}-${MAGISK_DATE}.zip"
+    - "out/${MAGISK_ZIP_FILE}"
     - "out/Magisk-uninstaller-${MAGISK_DATE}.zip"
     - "out/MagiskManager-v${APK_VER_NAME}.apk"
+    - "out/snet.apk"
   skip_cleanup: true
   on:
     branch: travisci-dev
     tags: true
+
+after_deploy:
+  - . .travis/push.sh

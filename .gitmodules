@@ -1,9 +1,9 @@
 [submodule "selinux"]
 	path = native/jni/external/selinux
-	url = https://github.com/topjohnwu/selinux.git
+	url = https://github.com/cooldroid/selinux.git
 [submodule "busybox"]
 	path = native/jni/external/busybox
-	url = https://github.com/topjohnwu/ndk-busybox.git
+	url = https://github.com/cooldroid/ndk-busybox.git
 [submodule "dtc"]
 	path = native/jni/external/dtc
 	url = https://github.com/dgibson/dtc
