@@ -1,4 +1,4 @@
-APP_ABI := armeabi-v7a x86
+APP_ABI := armeabi-v7a arm64-v8a x86 x86_64
 APP_CFLAGS := -std=gnu99 ${MAGISK_DEBUG} \
 	-DMAGISK_VERSION="${MAGISK_VERSION}" -DMAGISK_VER_CODE=${MAGISK_VER_CODE} 
 APP_CPPFLAGS := -std=c++14
