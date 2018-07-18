@@ -47,7 +47,7 @@ else:
 
 cpu_count = multiprocessing.cpu_count()
 gradlew = os.path.join('.', 'gradlew.bat' if os.name == 'nt' else 'gradlew')
-archs = ['armeabi-v7a', 'x86']
+archs = ['arm64-v8a', 'x86_64']
 keystore = 'release-key.jks'
 config = {}
 
@@ -134,21 +134,21 @@ def binary_dump(src, out, var_name):
 
 def gen_update_binary():
 	update_bin = []
-	binary = os.path.join('native', 'out', 'armeabi-v7a', 'b64xz')
+	binary = os.path.join('native', 'out', 'arm64-v8a', 'b64xz')
 	if not os.path.exists(binary):
 		error('Please build \'binary\' before zipping!')
 	with open(binary, 'rb') as b64xz:
 		update_bin.append('#! /sbin/sh\nEX_ARM=\'')
 		update_bin.append(''.join("\\x{:02X}".format(c) for c in b64xz.read()))
-	binary = os.path.join('native', 'out', 'x86', 'b64xz')
+	binary = os.path.join('native', 'out', 'x86_64', 'b64xz')
 	with open(binary, 'rb') as b64xz:
 		update_bin.append('\'\nEX_X86=\'')
 		update_bin.append(''.join("\\x{:02X}".format(c) for c in b64xz.read()))
-	binary = os.path.join('native', 'out', 'armeabi-v7a', 'busybox')
+	binary = os.path.join('native', 'out', 'arm64-v8a', 'busybox')
 	with open(binary, 'rb') as busybox:
 		update_bin.append('\'\nBB_ARM=')
 		update_bin.append(base64.b64encode(xz(busybox.read())).decode('ascii'))
-	binary = os.path.join('native', 'out', 'x86', 'busybox')
+	binary = os.path.join('native', 'out', 'x86_64', 'busybox')
 	with open(binary, 'rb') as busybox:
 		update_bin.append('\nBB_X86=')
 		update_bin.append(base64.b64encode(xz(busybox.read())).decode('ascii'))
@@ -198,7 +198,7 @@ def build_binary(args):
 		old_plat = True
 
 	if 'magiskinit' in args.target:
-		if not os.path.exists(os.path.join('native', 'out', 'x86', 'binaries_arch.h')):
+		if not os.path.exists(os.path.join('native', 'out', 'x86_64', 'binaries_arch.h')):
 			error('Build "magisk" before building "magiskinit"')
 		if not os.path.exists(os.path.join('native', 'out', 'binaries.h')):
 			error('Build stub APK before building "magiskinit"')
@@ -285,7 +285,7 @@ def zip_main(args):
 		zip_with_msg(zipf, source, target)
 
 		# Binaries
-		for lib_dir, zip_dir in [('armeabi-v7a', 'arm'), ('x86', 'x86')]:
+		for lib_dir, zip_dir in [('arm64-v8a', 'arm64'), ('x86_64', 'x64')]:
 			for binary in ['magiskinit', 'magiskboot']:
 				source = os.path.join('native', 'out', lib_dir, binary)
 				target = os.path.join(zip_dir, binary)
@@ -322,7 +322,7 @@ def zip_main(args):
 
 		# End of zipping
 
-	output = os.path.join(config['outdir'], 'Magisk-v{}.zip'.format(config['version']) if config['prettyName'] else 
+	output = os.path.join(config['outdir'], 'Magisk64-v{}-{}.zip'.format(config['version'], datetime.datetime.now().strftime('%Y%m%d')) if config['prettyName'] else 
 		'magisk-release.zip' if args.release else 'magisk-debug.zip')
 	sign_zip(unsigned, output, args.release)
 	header('Output: ' + output)
@@ -344,7 +344,7 @@ def zip_uninstaller(args):
 		zip_with_msg(zipf, source, target)
 
 		# Binaries
-		for lib_dir, zip_dir in [('armeabi-v7a', 'arm'), ('x86', 'x86')]:
+		for lib_dir, zip_dir in [('arm64-v8a', 'arm64'), ('x86_64', 'x64')]:
 			for bin in ['magisk', 'magiskboot']:
 				source = os.path.join('native', 'out', lib_dir, bin)
 				target = os.path.join(zip_dir, bin)

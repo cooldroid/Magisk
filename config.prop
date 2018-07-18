@@ -1,6 +1,10 @@
 # The version string and version code of Magisk
-version=16.6.2
-versionCode=1662
+version=17.1.1
+versionCode=17101
+
+# The version name and version code of Magisk Manager
+appVersion=5.9.1
+appVersionCode=139
 
 outdir=out
 
@@ -8,7 +12,8 @@ outdir=out
 # The default output names are magisk-${release/debug/uninstaller}.zip
 prettyName=true
 
-# These pwds are passed to apksigner for release-key.jks. Necessary when building release apks
+# Only used when building with release flag
+# These passwords are used along with release-key.jks to sign APKs and zips
 # keyPass is the pwd for the specified keyAlias
 keyStorePass=android
 keyAlias=android

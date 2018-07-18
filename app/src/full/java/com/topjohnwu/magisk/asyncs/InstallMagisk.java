@@ -344,7 +344,7 @@ public class InstallMagisk extends ParallelTask<Void, Void, Boolean> {
         List<String> abis = Arrays.asList(Build.SUPPORTED_ABIS);
         String arch;
 
-        if (Data.remoteMagiskVersionCode >= Const.MAGISK_VER.SEPOL_REFACTOR) {
+        if (Data.remoteMagiskVersionCode == Const.MAGISK_VER.SEPOL_REFACTOR) {
             // 32-bit only
             if (abis.contains("x86")) arch = "x86";
             else arch = "arm";
