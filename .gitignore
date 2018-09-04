@@ -1,0 +1,13 @@
+out
+*.zip
+*.jks
+*.apk
+
+# Unneeded build folders
+.idea
+.gradle
+app
+build
+snet
+native
+
