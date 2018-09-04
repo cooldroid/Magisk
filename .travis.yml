@@ -40,7 +40,7 @@ before_script:
   - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
   - sudo add-apt-repository ppa:jonathonf/python-3.6 -y
   - sudo apt-get update
-  - sudo apt-get install -y --allow-unauthenticated libstdc++6-4.7-dev python3.6 libpython2.7-dev
+  - sudo apt-get install -y --allow-unauthenticated libstdc++6-4.7-dev jq python3.6 libpython2.7-dev
   - wget http://http.us.debian.org/debian/pool/main/p/python2.7/libpython2.7-dev_2.7.9-2+deb8u1_arm64.deb
   - dpkg -x libpython2.7-dev_2.7.9-2+deb8u1_arm64.deb libpython2.7-dev_2.7.9-2+deb8u1_arm64_extracted
   - sudo cp -r libpython2.7-dev_2.7.9-2+deb8u1_arm64_extracted/usr/include/aarch64-linux-gnu /usr/include/
@@ -51,21 +51,25 @@ before_script:
 env:
   global:
     - ANDROID_HOME=/usr/local/android-sdk
-    - GH_EMAIL="amit.bagaria@gmail.com"
-    - GH_FULLNAME="Amit Bagaria"
+    - GH_EMAIL="travis@travis-ci.org"
+    - GH_FULLNAME="Travis CI"
     - GH_USERNAME=cooldroid
     - MAGISK_VER_STRING=$(grep -iR "^version=" config.prop | awk -F "=" '{print $2}')
+    - MAGISK_VER_CODE=$(grep -iR "^versionCode=" config.prop | awk -F "=" '{print $2}')
     - APK_VER_NAME=$(grep -iR "^appVersion=" config.prop | awk -F "=" '{print $2}')
+    - APK_VER_CODE=$(grep -iR "^appVersionCode=" config.prop | awk -F "=" '{print $2}')
     - MAGISK_DATE=$(date -u +%Y%m%d)
     - MAGISK_ZIP_FILE=Magisk64-v${MAGISK_VER_STRING}-${MAGISK_DATE}.zip
+    - secure: HQmqZPaINrEwf+9XNBW7nqTq9ztnVsPSo+gtUOcf/Dfxg+q8nnn0zMZKD7AMtY+Hix5elsOXT1UdETJ7gIW31uvwSzP1Wci76QQFdQRpJLAZofBfsfXiyWw9SusutYdA+pkGWF0SPo5rRdbUPbzmzuIubgUdMJmcQ+1biwvyopSbMY4PBxdm1KO0x22OOvqliT8v9mqiV+ySbFisB5nXmArT4bxzDriFuvT28kPHSKWhlUADi3A1KPdL6eZB2LGvG5JVTtu+5ZCKN4DgY+KmzC5NK4H6dO9ufGZg9gIhFcskqSNuG8JgXs00pEkr4Cw+UwMzW7m52cHwUjY63cbqFZSIADPscnLGLh9RlfJ9VxMwnkSUwg6dUndFCXYNN9A39oV/7X+LMAC9JK8dYp/CeztxPjqCQQulzLi0ZkOYuxk4lq8zolBmMdeibl9qs//M62b8ZqNaKlK7zKAmruGuD1Khru2p1XoeE89o4BlWOaeIKcXIgXzajAa0DcR+UP7G/P1dlFOGgA9AZkk5YcRnO/5lQBMFORhf0FhJwrq2IM+wzF+bnapO8GdAjiIdRqe1lz2vQAzKtMMcwJOM6CaheBNuYkUvN/P6lxref5GZ4pZuW2xG316T1e2JRV/wVEu66yFFZHK6yewi+MA0MC22YH0OitkOAmPN/lJTQbmx4rg=
 
 script:
   - time python3.6 ${TRAVIS_BUILD_DIR}/build.py -r -v all && echo "Magisk has been successfully built"
 
 after_success:
   - mv -f out/app-full-release.apk out/MagiskManager-v${APK_VER_NAME}.apk
-  - md5sum out/${MAGISK_ZIP_FILE} > out/${MAGISK_ZIP_FILE}.md5
-  - '[ -f out/${MAGISK_ZIP_FILE} ] && export TRAVIS_TAG=v${MAGISK_VER_STRING}-${MAGISK_DATE}'
+  - export MD5=`md5sum out/${MAGISK_ZIP_FILE} | awk '{ print $1 }'`
+  - echo $MD5 > out/${MAGISK_ZIP_FILE}.md5
+  - "[ -f out/${MAGISK_ZIP_FILE} ] && export TRAVIS_TAG=v${MAGISK_VER_STRING}-${MAGISK_DATE}"
 
 deploy:
   provider: releases
@@ -80,3 +84,6 @@ deploy:
   on:
     branch: travisci-dev
     tags: true
+
+after_deploy:
+  - . .travis/push.sh
