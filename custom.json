@@ -1,19 +1,19 @@
 {
   "app": {
-    "version": "5.9.2",
+    "version": "5.9.2-173cca1",
     "versionCode": "141",
-    "link": "https://github.com/cooldroid/Magisk/releases/download/v17.2.1-20180909/MagiskManager-v5.9.2.apk",
+    "link": "https://github.com/cooldroid/Magisk/releases/download/v17.2-20180910/MagiskManager-v5.9.2-173cca1.apk",
     "note": "hhttps://raw.githubusercontent.com/topjohnwu/Magisk/master/app/src/full/res/raw/changelog.md"
   },
   "magisk": {
-    "version": "17.2",
+    "version": "17.2-173cca1",
     "versionCode": "17102",
-    "link": "https://github.com/cooldroid/Magisk/releases/download/v17.2.1-20180909/Magisk64-v17.2.1-20180909.zip",
+    "link": "https://github.com/cooldroid/Magisk/releases/download/v17.2-20180910/Magisk64-v17.2-173cca1-20180910.zip",
     "note": "https://raw.githubusercontent.com/topjohnwu/magisk_files/master/canary_builds/notes.md",
-    "md5": "58b3876c7e823e92c435718e89dda07f"
+    "md5": "357cb22609f303a7f694e5ba9f36daa8"
   },
   "uninstaller": {
-    "link": "https://github.com/cooldroid/Magisk/releases/download/v17.2.1-20180909/Magisk-uninstaller-20180909.zip"
+    "link": "https://github.com/cooldroid/Magisk/releases/download/v17.2-20180910/Magisk-uninstaller-20180910.zip"
   },
   "snet": {
     "versionCode": "11",
