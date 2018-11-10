@@ -115,6 +115,9 @@ include $(BUILD_EXECUTABLE)
 
 endif
 
+ifneq ($(TARGET_ARCH_ABI), x86)
+ifneq ($(TARGET_ARCH_ABI), armeabi-v7a)
+
 ifdef B_BXZ
 
 # b64xz
@@ -133,6 +136,9 @@ ifdef B_BB
 # Busybox
 include jni/external/busybox/Android.mk
 
+endif
+
+endif
 endif
 
 ########################

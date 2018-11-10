@@ -43,7 +43,7 @@ mount_partitions
 api_level_arch_detect
 
 ui_print "- Device platform: $ARCH"
-MAGISKBIN=$INSTALLER/$ARCH32
+MAGISKBIN=$INSTALLER/$ARCH
 mv $CHROMEDIR $MAGISKBIN
 chmod -R 755 $MAGISKBIN
 

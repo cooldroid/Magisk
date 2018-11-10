@@ -61,7 +61,7 @@ api_level_arch_detect
 
 ui_print "- Device platform: $ARCH"
 
-BINDIR=$INSTALLER/$ARCH32
+BINDIR=$INSTALLER/$ARCH
 chmod -R 755 $CHROMEDIR $BINDIR
 
 # Check if system root is installed and remove
